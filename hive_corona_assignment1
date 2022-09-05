@@ -1,0 +1,14 @@
+1. download csv https://www.kaggle.com/datasets/imdevskp/corona-virus-report
+2. hive create external table
+create external table country_wise_latest (`Country/Region` string, `Confirmed` DECIMAL(38, 0), `Deaths` DECIMAL(38, 0), `Recovered` DECIMAL(38, 0), `Active` DECIMAL(38, 0), `New cases` DECIMAL(38, 0), `New deaths` DECIMAL(38, 0), `New recovered` DECIMAL(38, 0), `Deaths / 100 Cases` DECIMAL(38, 2), `Recovered / 100 Cases` DECIMAL(38, 2), `Deaths / 100 Recovered` DECIMAL(38, 2), `Confirmed last week` DECIMAL(38, 0), `1 week change` DECIMAL(38, 0), `1 week %% increase` DECIMAL(38, 2), `WHO Region` string) row format delimited fields terminated by ',' location '/tmp/assignment1/country_wise_latest' TBLPROPERTIES("skip.header.line.count"="1");
+
+3. query on table
+
+#for country=india data
+select * from country_wise_latest where `country/region` = 'India';
+
+#total row count
+select count(*) from country_wise_latest;
+
+#total cases all country
+select sum(`Confirmed`) as `total-confirmed-cases`,  sum(`Deaths`) as `total-Deaths`,  sum(`Recovered`) as `Recovered`,  sum(`Active`) as `Active` ,  sum(`New cases`) as `New-cases` ,  sum(`New deaths`) as `New-deaths`,  sum(`New recovered`) as `New-recovered` from country_wise_latest;
