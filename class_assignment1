@@ -1,0 +1,108 @@
+1. Download vechile sales data -> https://github.com/shashank-mishra219/Hive-Class/blob/main/sales_order_data.csv
+Done
+2. Store raw data into hdfs location
+Done
+
+3. Create a internal hive table "sales_order_csv" which will store csv data sales_order_csv .. make sure to skip header row while creating table
+create table sales_order_csv
+(
+ORDERNUMBER int,
+QUANTITYORDERED int,
+PRICEEACH float,
+ORDERLINENUMBER int,
+SALES float,
+STATUS string,
+QTR_ID int,
+MONTH_ID int,
+YEAR_ID int,
+PRODUCTLINE string,
+MSRP int,
+PRODUCTCODE string,
+PHONE string,
+CITY string,
+STATE string,
+POSTALCODE string,
+COUNTRY string,
+TERRITORY string,
+CONTACTLASTNAME string,
+CONTACTFIRSTNAME string,
+DEALSIZE string
+)
+row format delimited
+fields terminated by ','
+tblproperties ('skip.header.line.count' = '1');
+
+Done
+
+4. Load data from hdfs path into "sales_order_csv" 
+
+load data inpath '/tmp/Dataset/sales_order_data.csv' into table sales_order_csv;
+
+Done
+
+5. Create an internal hive table which will store data in ORC format "sales_order_orc"
+create table sales_order_orc
+(
+ORDERNUMBER int,
+QUANTITYORDERED int,
+PRICEEACH float,
+ORDERLINENUMBER int,
+SALES float,
+STATUS string,
+QTR_ID int,
+MONTH_ID int,
+YEAR_ID int,
+PRODUCTLINE string,
+MSRP int,
+PRODUCTCODE string,
+PHONE string,
+CITY string,
+STATE string,
+POSTALCODE string,
+COUNTRY string,
+TERRITORY string,
+CONTACTLASTNAME string,
+CONTACTFIRSTNAME string,
+DEALSIZE string
+)
+stored as orc;
+
+Done
+
+
+
+6. Load data from "sales_order_csv" into "sales_order_orc"
+
+from sales_order_csv insert overwrite table sales_order_orc select *;
+
+Done
+
+
+Perform below menioned queries on "sales_order_orc" table :
+
+a. Calculatye total sales per year
+select year_id,sum(sales) as total_sales from sales_order_orc where status != 'Cancelled' group by year_id;
+
+b. Find a product for which maximum orders were placed
+select PRODUCTLINE,productcode,sum(QUANTITYORDERED) as max_order from sales_order_orc group by PRODUCTLINE,productcode order by max_order DESC limit 1;
+
+
+c. Calculate the total sales for each quarter
+
+select year_id,QTR_ID,sum(SALES) as total_quater_sales from sales_order_orc where status != 'Cancelled' group by year_id,QTR_ID;
+
+d. In which quarter sales was minimum
+select year_id,QTR_ID,sum(SALES) as min_quater_sales from sales_order_orc where status != 'Cancelled' group by year_id,QTR_ID order by min_quater_sales ASC limit 1;
+
+e. In which country sales was maximum and in which country sales was minimum
+select COUNTRY,MAX(sales) as max_sales,MIN(sales) as min_sales from sales_order_orc where status != 'Cancelled' group by COUNTRY;
+
+f. Calculate quartelry sales for each city
+
+select CITY,year_id,QTR_ID,SUM(sales) as city_total_sales_quater from sales_order_orc where status != 'Cancelled' group by CITY, year_id, QTR_ID;
+
+
+h. Find a month for each year in which maximum number of quantities were sold
+
+select MAX(QUANTITYORDERED) max_quantity,year_id,MONTH_ID from sales_order_orc where status != 'Cancelled' group by year_id,MONTH_ID;
+
